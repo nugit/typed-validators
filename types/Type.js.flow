@@ -1,0 +1,33 @@
+// @flow
+
+import type Validation from '../Validation'
+import type { IdentifierPath } from '../Validation'
+import type RuntimeTypeErrorItem from '../errorReporting/RuntimeTypeErrorItem'
+
+/**
+ * # Type
+ *
+ * This is the base class for all types.
+ */
+declare class Type<T> {
+  typeName: string;
+  +__type: T;
+
+  errors(
+    validation: Validation,
+    path: IdentifierPath,
+    input: any
+  ): Iterable<RuntimeTypeErrorItem>;
+
+  accepts(input: any): boolean;
+
+  +acceptsSomeCompositeTypes: boolean;
+
+  assert(input: any, prefix?: string, path?: IdentifierPath): T;
+
+  validate(input: any, prefix?: string, path?: IdentifierPath): Validation;
+
+  toString(options?: { formatForMustBe?: boolean, ... }): string;
+}
+
+export default Type

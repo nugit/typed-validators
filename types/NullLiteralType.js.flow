@@ -1,0 +1,9 @@
+// @flow
+
+import PrimitiveLiteralType from './PrimitiveLiteralType'
+
+declare class NullLiteralType extends PrimitiveLiteralType<null> {
+  constructor(): void;
+}
+
+export default NullLiteralType

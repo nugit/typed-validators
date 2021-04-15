@@ -1,0 +1,9 @@
+// @flow
+
+import PrimitiveLiteralType from './PrimitiveLiteralType'
+
+declare class StringLiteralType<T: string> extends PrimitiveLiteralType<T> {
+  constructor(value: T): void;
+}
+
+export default StringLiteralType

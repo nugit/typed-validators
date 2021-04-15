@@ -1,0 +1,269 @@
+// @flow
+
+import AnyType from './types/AnyType'
+import ArrayType from './types/ArrayType'
+import BooleanLiteralType from './types/BooleanLiteralType'
+import BooleanType from './types/BooleanType'
+import InstanceOfType from './types/InstanceOfType'
+import IntersectionType from './types/IntersectionType'
+import merge from './merge'
+import MergedObjectType from './types/MergedObjectType'
+import mergeInexact from './mergeInexact'
+import NullLiteralType from './types/NullLiteralType'
+import NumberType from './types/NumberType'
+import NumericLiteralType from './types/NumericLiteralType'
+import ObjectType from './types/ObjectType'
+import ObjectTypeProperty from './types/ObjectTypeProperty'
+import oneOf from './oneOf'
+import RecordType from './types/RecordType'
+import RuntimeTypeError from './errorReporting/RuntimeTypeError'
+import RuntimeTypeErrorItem from './errorReporting/RuntimeTypeErrorItem'
+import StringLiteralType from './types/StringLiteralType'
+import StringType from './types/StringType'
+import SymbolLiteralType from './types/SymbolLiteralType'
+import SymbolType from './types/SymbolType'
+import TupleType from './types/TupleType'
+import Type from './types/Type'
+import TypeAlias from './types/TypeAlias'
+import TypeReference from './types/TypeReference'
+import UndefinedLiteralType from './types/UndefinedLiteralType'
+import UnionType from './types/UnionType'
+import UnknownType from './types/UnknownType'
+import Validation from './Validation'
+
+export {
+  AnyType,
+  ArrayType,
+  BooleanLiteralType,
+  BooleanType,
+  InstanceOfType,
+  IntersectionType,
+  merge,
+  MergedObjectType,
+  mergeInexact,
+  NullLiteralType,
+  NumberType,
+  NumericLiteralType,
+  ObjectType,
+  ObjectTypeProperty,
+  oneOf,
+  RecordType,
+  RuntimeTypeError,
+  RuntimeTypeErrorItem,
+  StringLiteralType,
+  StringType,
+  SymbolLiteralType,
+  SymbolType,
+  TupleType,
+  Type,
+  TypeAlias,
+  TypeReference,
+  UndefinedLiteralType,
+  UnionType,
+  UnknownType,
+  Validation,
+}
+
+declare export function any(): Type<any>
+declare export function unknown(): Type<mixed>
+
+declare export function array<T>(elementType: Type<T>): Type<T[]>
+declare export function readonlyArray<T>(
+  elementType: Type<T>
+): Type<$ReadOnlyArray<T>>
+
+declare export function readonly<T: { ... }>(type: Type<T>): Type<$ReadOnly<T>>
+
+declare export function nullLiteral(): Type<null>
+export { nullLiteral as null }
+declare export function nullOr<T>(type: Type<T>): Type<T | null>
+
+declare export function undefinedLiteral(): Type<void>
+export { undefinedLiteral as undefined }
+
+declare export function nullish(): Type<null | void>
+declare export function nullishOr<T>(type: Type<T>): Type<?T>
+
+declare export function boolean<T: true | false>(literal: T): Type<T>
+declare export function boolean(): Type<boolean>
+
+declare export function number<T: number>(literal: T): Type<T>
+declare export function number(): Type<number>
+
+declare export function string<T: string>(literal: T): Type<T>
+declare export function string(): Type<string>
+
+declare export function symbol<T: symbol>(literal: T): Type<T>
+declare export function symbol(): Type<symbol>
+
+type ExtractPropertyTypes<P: { [any]: Type<any>, ... }> = $Exact<
+  $ObjMap<P, <T: Type<any>>(T) => $PropertyType<T, '__type'>>
+>
+type ExtractOptionalPropertyTypes<P: { [any]: Type<any>, ... }> = $Exact<
+  $Rest<ExtractPropertyTypes<P>, { ... }>
+>
+
+declare export function object<R: { [any]: Type<any>, ... }>({|
+  required: R,
+  exact: false,
+|}): ObjectType<{ ...ExtractPropertyTypes<R>, ... }>
+declare export function object<R: { [any]: Type<any>, ... }>({|
+  required: R,
+  exact?: true,
+|}): ObjectType<ExtractPropertyTypes<R>>
+declare export function object<S: { [any]: Type<any>, ... }>({|
+  optional: S,
+  exact: false,
+|}): ObjectType<{ ...ExtractOptionalPropertyTypes<S>, ... }>
+declare export function object<S: { [any]: Type<any>, ... }>({|
+  optional: S,
+  exact?: true,
+|}): ObjectType<ExtractOptionalPropertyTypes<S>>
+declare export function object<
+  R: { [any]: Type<any>, ... },
+  S: { [any]: Type<any>, ... }
+>({|
+  required: R,
+  optional: S,
+  exact: false,
+|}): ObjectType<{
+  ...ExtractPropertyTypes<R>,
+  ...ExtractOptionalPropertyTypes<S>,
+  ...
+}>
+declare export function object<
+  R: { [any]: Type<any>, ... },
+  S: { [any]: Type<any>, ... }
+>({|
+  required: R,
+  optional: S,
+  exact?: true,
+|}): ObjectType<{|
+  ...ExtractPropertyTypes<R>,
+  ...ExtractOptionalPropertyTypes<S>,
+|}>
+declare export function object<R: { [any]: Type<any>, ... }>(
+  required: R
+): ObjectType<ExtractPropertyTypes<R>>
+
+type Properties = { [string | number | symbol]: Type<any>, ... }
+
+declare export function record<K: string | number | symbol, V>(
+  key: Type<K>,
+  value: Type<V>
+): RecordType<K, V>
+
+declare export function instanceOf<T>(classType: () => Class<T>): Type<T>
+
+declare export function tuple<T1>(...types: [Type<T1>]): Type<[T1]>
+declare export function tuple<T1, T2>(
+  ...types: [Type<T1>, Type<T2>]
+): Type<[T1, T2]>
+declare export function tuple<T1, T2, T3>(
+  ...types: [Type<T1>, Type<T2>, Type<T3>]
+): Type<[T1, T2, T3]>
+declare export function tuple<T1, T2, T3, T4>(
+  ...types: [Type<T1>, Type<T2>, Type<T3>, Type<T4>]
+): Type<[T1, T2, T3, T4]>
+declare export function tuple<T1, T2, T3, T4, T5>(
+  ...types: [Type<T1>, Type<T2>, Type<T3>, Type<T4>, Type<T5>]
+): Type<[T1, T2, T3, T4, T5]>
+declare export function tuple<T1, T2, T3, T4, T5, T6>(
+  ...types: [Type<T1>, Type<T2>, Type<T3>, Type<T4>, Type<T5>, Type<T6>]
+): Type<[T1, T2, T3, T4, T5, T6]>
+declare export function tuple<T1, T2, T3, T4, T5, T6, T7>(
+  ...types: [
+    Type<T1>,
+    Type<T2>,
+    Type<T3>,
+    Type<T4>,
+    Type<T5>,
+    Type<T6>,
+    Type<T7>
+  ]
+): Type<[T1, T2, T3, T4, T5, T6, T7]>
+declare export function tuple<T1, T2, T3, T4, T5, T6, T7, T8>(
+  ...types: [
+    Type<T1>,
+    Type<T2>,
+    Type<T3>,
+    Type<T4>,
+    Type<T5>,
+    Type<T6>,
+    Type<T7>,
+    Type<T8>
+  ]
+): Type<[T1, T2, T3, T4, T5, T6, T7, T8]>
+declare export function tuple(...types: Type<any>[]): Type<any>
+
+declare export function allOf<T1>(...types: [Type<T1>]): Type<T1>
+declare export function allOf<T1, T2>(
+  ...types: [Type<T1>, Type<T2>]
+): Type<T1 & T2>
+declare export function allOf<T1, T2, T3>(
+  ...types: [Type<T1>, Type<T2>, Type<T3>]
+): Type<T1 & T2 & T3>
+declare export function allOf<T1, T2, T3, T4>(
+  ...types: [Type<T1>, Type<T2>, Type<T3>, Type<T4>]
+): Type<T1 & T2 & T3 & T4>
+declare export function allOf<T1, T2, T3, T4, T5>(
+  ...types: [Type<T1>, Type<T2>, Type<T3>, Type<T4>, Type<T5>]
+): Type<T1 & T2 & T3 & T4 & T5>
+declare export function allOf<T1, T2, T3, T4, T5, T6>(
+  ...types: [Type<T1>, Type<T2>, Type<T3>, Type<T4>, Type<T5>, Type<T6>]
+): Type<T1 & T2 & T3 & T4 & T5 & T6>
+declare export function allOf<T1, T2, T3, T4, T5, T6, T7>(
+  ...types: [
+    Type<T1>,
+    Type<T2>,
+    Type<T3>,
+    Type<T4>,
+    Type<T5>,
+    Type<T6>,
+    Type<T7>
+  ]
+): Type<T1 & T2 & T3 & T4 & T5 & T6 & T7>
+declare export function allOf<T1, T2, T3, T4, T5, T6, T7, T8>(
+  ...types: [
+    Type<T1>,
+    Type<T2>,
+    Type<T3>,
+    Type<T4>,
+    Type<T5>,
+    Type<T6>,
+    Type<T7>,
+    Type<T8>
+  ]
+): Type<T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8>
+declare export function allOf(...types: Type<any>[]): Type<any>
+
+declare export function alias<T>(name: string, type: Type<T>): TypeAlias<T>
+
+declare export function ref<T>(type: () => TypeAlias<T>): Type<T>
+
+export type ExtractType<T: Type<any>> = $PropertyType<T, '__type'>
+
+type DeployConfig = ExtractType<
+  Type<{|
+    ...ExtractPropertyTypes<{|
+      Redis: Type<
+        | {|
+            ...ExtractPropertyTypes<{|
+              Host: Type<string>,
+              Type: Type<'External'>,
+            |}>,
+            ...ExtractOptionalPropertyTypes<{|
+              DB: Type<number>,
+              Port: Type<number>,
+              SecurityGroupId: Type<string>,
+            |}>,
+          |}
+        | ExtractPropertyTypes<{|
+            AvailabilityZone: Type<string>,
+            Type: Type<'ElastiCache'>,
+          |}>
+      >,
+    |}>,
+    ...ExtractOptionalPropertyTypes<{| AppName: Type<string> |}>,
+  |}>
+>

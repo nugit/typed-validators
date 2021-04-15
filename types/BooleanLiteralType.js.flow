@@ -1,0 +1,9 @@
+// @flow
+
+import PrimitiveLiteralType from './PrimitiveLiteralType'
+
+declare class BooleanLiteralType<T: boolean> extends PrimitiveLiteralType<T> {
+  constructor(value: T): void;
+}
+
+export default BooleanLiteralType

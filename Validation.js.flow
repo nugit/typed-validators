@@ -1,0 +1,28 @@
+// @flow
+
+import Type from './types/Type'
+import RuntimeTypeErrorItem from './errorReporting/RuntimeTypeErrorItem'
+
+export type IdentifierPath = Array<string | number | symbol>
+
+declare class Validation {
+  input: any;
+
+  path: IdentifierPath;
+
+  prefix: string;
+
+  errors: RuntimeTypeErrorItem[];
+
+  constructor(input: any, prefix?: string, path?: IdentifierPath): void;
+
+  inCycle(type: Type<any>, input: any): boolean;
+
+  startCycle(type: Type<any>, input: any): void;
+
+  endCycle(type: Type<any>, input: any): void;
+
+  hasErrors(): boolean;
+}
+
+export default Validation

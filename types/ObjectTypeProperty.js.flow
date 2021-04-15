@@ -1,0 +1,22 @@
+// @flow
+
+import Type from './Type'
+
+declare class ObjectTypeProperty<
+  K: string | number | symbol,
+  V
+> extends Type<V> {
+  key: K;
+  value: Type<V>;
+  optional: boolean;
+  __objectType: Type<any>;
+
+  constructor(key: K, value: Type<V>, optional: boolean): void;
+
+  /**
+   * Determine whether the property exists on the given input or its prototype chain.
+   */
+  existsOn(input: { [string]: any, ... }): boolean;
+}
+
+export default ObjectTypeProperty
